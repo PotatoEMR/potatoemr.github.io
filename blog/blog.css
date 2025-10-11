@@ -1,0 +1,55 @@
+body {
+    font-family: Verdana, sans-serif;
+    background-color: #fdf6e3;
+    @media (prefers-color-scheme: dark) {
+        background-color: #1e1e2f;
+    }
+    background-image: url("static/tile.png");
+    background-repeat: repeat;
+    margin: 0px;
+    padding: 0px;
+}
+html {
+    margin: 0px;
+    padding: 0px;
+}
+main {
+    height: 100%;
+    overflow-y: auto;
+    margin: 0px;
+    padding: 0px;
+}
+article {
+    background-color: #fdf6e3;
+    color: black;
+    box-shadow: 0 0 8px black;
+    @media (prefers-color-scheme: dark) {
+        background-color: #1e1e2f;
+        color: white;
+        box-shadow: 0 0 8px white;
+    }
+    @media (min-width: 850px) {
+        width: 100%;
+        margin: auto;
+        margin-top: 130px;
+        margin-bottom: 30px;
+        max-width: 800px;
+        border-radius: 10px;
+    }
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+@media (prefers-color-scheme: dark) {
+    a {
+        color: lightskyblue;
+    }
+    a:visited {
+        color: #c000c0;
+    }
+    a:active,
+    a:visited:active {
+        color: #ff0000;
+    }
+}
