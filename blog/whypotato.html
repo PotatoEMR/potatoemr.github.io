@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Why Potato" />
+        <meta
+            name="keywords"
+            content="PotatoEMR, EMR, Potato, Go, Golang, FHIR, simple, complex, medicine"
+        />
+        <meta property="og:title" content="Why Potato" />
+        <meta
+            property="og:image"
+            content="https://potatoemr.github.io/static/PotatoEMR.jpg"
+        />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='1em' font-size='80'&gt;🥔&lt;/text&gt;&lt;/svg&gt;"
+        />
+        <link
+            rel="stylesheet"
+            href="C:\Users\Administrator\git\potatoemr.github.io\blog\blog.css"
+        />
+        <title>Why Potato | PotatoEMR Blog</title>
+    </head>
+    <body>
+        <main>
+            <article>
+                <h1>Why Potato</h1>
+                <small
+                    >October 13, 2025 |
+                    <a href="/blog">PotatoEMR Blog</a></small
+                >
+
+                <img
+                    src="/static/PotatoEMR.jpg"
+                    width="40%"
+                    alt="Potato with letters EMR peeled"
+                />
+
+                <p>PotatoEMR is a simple(ish) EMR.</p>
+
+                <p>
+                    Potato is a silly name, on purpose: it's a toy to play
+                    around with, not a big and professional health platform.
+                    Everyone seems to think medical systems should be
+                    complicated and painful, and if you're not suffering you're
+                    doing it wrong. Maybe some unholy combination of insurance,
+                    regulation, and administration does make that true.
+                    Fortunately, since nobody actually uses PotatoEMR we can
+                    ignore all the requirements that lead to
+                    "ClinicalPlatformsCloudSynergie". The name should be the
+                    opposite of that, to focus on fun and terrible ideas like
+                    upvotes/downvotes on notes.
+                </p>
+
+                <p>
+                    So out of the big world of silly names, why Potato in
+                    particular? Everybody likes potatoes. They're cheap, easy,
+                    plentiful, hardy, versatile, nutritious, and delicious!
+                    Above all, potatoes are simple, and PotatoEMR should be
+                    relatively simple. Simplistic, even. In some situations the
+                    "right thing" is too complex, so
+                    <a
+                        href="https://www.dreamsongs.com/RiseOfWorseIsBetter.html"
+                        >simplicity</a
+                    >
+                    comes at the cost of completeness or even correctness, but
+                    is still worth it. In practice, simplicity is more powerful
+                    than feature completeness, and the potato is an inspiring
+                    example of powerful simplicity.
+                </p>
+
+                <p>
+                    Also, that sort of grand sweeping statement is very easy to
+                    make, but is not very productive without evidence supporting
+                    or falsifying it. Ideally every claim on this blog will
+                    reference evidence, so claims need to be small enough to
+                    prove with code and usage examples. For instance,
+                    <em>running</em> PotatoEMR is pretty simple. It's a
+                    <a href="/blog/whygoth">Go</a> server, which you run with
+                    "Go run ." to run the entrypoint func main() in
+                    <a
+                        href="https://github.com/PotatoEMR/PotatoEMR/blob/main/main.go"
+                        >main.go</a
+                    >. It links a bunch of urls to handler functions
+                </p>
+
+                <pre
+                    class="chroma"
+                ><code><span class="line"><span class="cl"><span class="nx">get_patient_allergies</span> <span class="p">=</span> <span class="nx">mux</span><span class="p">.</span><span class="nf">namedHandleFunc</span><span class="p">(</span><span class="s">&#34;GET /patient/{patId}/allergies/&#34;</span><span class="p">,</span> <span class="nx">patient_Allergies</span><span class="p">)</span></span></span></code></pre>
+
+                <p>
+                    This is standard Go: when user clicks that url, call
+                    patient_AllergiesCreate. The one nonstandard thing is
+                    get_patient_allergies is a string variable namedHandleFunc
+                    sets to "/patient/%s/allergies/", which HTML page templates
+                    can use to avoid hardcoding a url that might change later.
+                    Note the %s because we'll need to put the patient's unique
+                    id in there.
+                </p>
+
+                <p>There are two optional flags</p>
+
+                <pre
+                    class="chroma"
+                ><code><span class="line"><span class="cl"><span class="nx">port</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;port&#34;</span><span class="p">,</span> <span class="s">&#34;8000&#34;</span><span class="p">,</span> <span class="s">&#34;run potatoemr on 127.0.0.1:&lt;port&gt;&#34;</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"><span class="nx">fhirServer</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;fhirServer&#34;</span><span class="p">,</span> <span class="s">&#34;r4.smarthealthit.org/&#34;</span><span class="p">,</span> <span class="s">&#34;connect to FHIR server at &lt;fhirServer&gt;&#34;</span><span class="p">)</span></span></span></code></pre>
+
+                <p>
+                    So you can run it with "go run ." or "go run . -port=8001"
+                    or whatever. If you don't specify options they default to
+                    8000 and r4.smarthealthit.org/.
+                </p>
+
+                <p>At the end of main() it runs</p>
+
+                <pre
+                    class="chroma"
+                ><code><span class="line"><span class="cl"><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:&#34;</span><span class="o">+*</span><span class="nx">port</span><span class="p">,</span> <span class="nx">mux</span><span class="p">)</span></span></span></code></pre>
+
+                <p>
+                    Which waits forever for user requests. When the server gets
+                    a request to a url, it responds with the handler function we
+                    linked to it before.
+                </p>
+
+                <p>
+                    There are probably a lot of legitimate configuration needs
+                    this does not support, but it has the virtue of being simple
+                    and easy to understand. This is not enough evidence to show
+                    PotatoEMR <em>in general</em> is simple and easy to
+                    understand. <a href="/blog/whyfhir">FHIR</a> in particular
+                    puts the ish in simple(ish). But hopefully if you poke
+                    around a bit, you'll quickly see how the whole
+                    <a href="/blog/boxes">system</a> fits together.
+                </p>
+
+                <small class="licenses"
+                    >Go Gopher by
+                    <a href="https://en.wikipedia.org/wiki/Ren%C3%A9e_French"
+                        >Renée French</a
+                    >
+                    under
+                    <a
+                        href="https://creativecommons.org/licenses/by/4.0/deed.en"
+                        >CC4</a
+                    >. FHIR<sup>&reg;</sup> is a trademark of
+                    <a href="https://hl7.org/fhir/">HL7<sup>&reg;</sup></a
+                    >. Potato domesticated by
+                    <a
+                        href="https://www.smithsonianmag.com/history/how-the-potato-changed-the-world-108470605/"
+                        >Andeans</a
+                    >
+                    <a
+                        href="https://en.wikipedia.org/wiki/History_of_the_potato"
+                        >years ago</a
+                    >.</small
+                >
+            </article>
+        </main>
+    </body>
+</html>
