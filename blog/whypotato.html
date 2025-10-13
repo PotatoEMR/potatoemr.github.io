@@ -87,7 +87,7 @@
                 ><code><span class="line"><span class="cl"><span class="nx">get_patient_allergies</span> <span class="p">=</span> <span class="nx">mux</span><span class="p">.</span><span class="nf">namedHandleFunc</span><span class="p">(</span><span class="s">&#34;GET /patient/{patId}/allergies/&#34;</span><span class="p">,</span> <span class="nx">patient_Allergies</span><span class="p">)</span></span></span></code></pre>
 
                 <p>
-                    This is standard Go: when user clicks that url, call
+                    This is mostly standard Go: when user clicks that url, call
                     patient_AllergiesCreate. The one nonstandard thing is
                     get_patient_allergies is a string variable namedHandleFunc
                     sets to "/patient/%s/allergies/", which HTML page templates
