@@ -61,6 +61,12 @@ article {
         color: #ff0000;
     }
 }
+@media (prefers-color-scheme: dark) {
+.license {
+    @media (max-width: 850px) {
+        display: none;
+    }
+}
 .chroma {
     overflow-x: auto;
     padding: 1rem;
