@@ -62,7 +62,7 @@ article {
     }
 }
 @media (prefers-color-scheme: dark) {
-.license {
+.licenses {
     @media (max-width: 850px) {
         display: none;
     }
