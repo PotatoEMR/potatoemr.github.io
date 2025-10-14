@@ -1,3 +1,6 @@
+@view-transition {
+    navigation: auto;
+}
 html,
 body,
 main {
