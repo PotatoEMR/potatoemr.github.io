@@ -1,3 +1,9 @@
+html, body, main {
+    margin: 0px;
+    padding: 0px;
+    height: 100%;
+    scrollbar-gutter: stable;
+}
 body {
     font-family: Verdana, sans-serif;
     background-color: #ffffdd;
@@ -8,20 +14,9 @@ body {
         background-image: url("/static/tile.png");
         background-repeat: repeat;
     }
-    margin: 0px;
-    padding: 0px;
-    height: 100%;
-}
-html {
-    margin: 0px;
-    padding: 0px;
-    height: 100%;
 }
 main {
-    height: 100%;
     overflow-y: auto;
-    margin: 0px;
-    padding: 0px;
 }
 article {
     background-color: #ffffdd;
