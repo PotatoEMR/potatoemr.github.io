@@ -57,20 +57,13 @@ article {
     }
 }
 @media (prefers-color-scheme: dark) {
-.chroma {
-    overflow-x: auto;
-    padding: 1rem;
-    border-radius: 5px;
-}
-/* Background */
-.bg {
-    color: #cdd6f4;
-    background-color: #1e1e2e;
-}
 /* PreWrapper */
 .chroma {
     color: #cdd6f4;
     background-color: #1e1e2e;
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: 5px;
 }
 /* Error */
 .chroma .err {
