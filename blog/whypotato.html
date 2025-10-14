@@ -74,29 +74,13 @@
                     evidence, so claims need to be small enough to prove with
                     code and usage examples. Here's a nice small claim:
                     <em>running</em> PotatoEMR is pretty simple. It's a
-                    <a href="/blog/whygoth">Go</a> server, which you run with
-                    "Go run ." to run the entrypoint func main() in
+                    <a href="/blog/whygoth">Go</a> server, which you compile and
+                    run with "Go run ." to run the entrypoint func main() in
                     <a
                         href="https://github.com/PotatoEMR/PotatoEMR/blob/main/main.go"
                         >main.go</a
-                    >. It links a bunch of urls to handler functions
+                    >. There are two optional flags
                 </p>
-
-                <pre
-                    class="chroma"
-                ><code><span class="line"><span class="cl"><span class="nx">get_patient_allergies</span> <span class="p">=</span> <span class="nx">mux</span><span class="p">.</span><span class="nf">namedHandleFunc</span><span class="p">(</span><span class="s">&#34;GET /patient/{patId}/allergies/&#34;</span><span class="p">,</span> <span class="nx">patient_Allergies</span><span class="p">)</span></span></span></code></pre>
-
-                <p>
-                    This is mostly standard Go: when user clicks that url, call
-                    patient_AllergiesCreate. The one nonstandard thing is
-                    get_patient_allergies is a string variable namedHandleFunc
-                    sets to "/patient/%s/allergies/", which HTML page templates
-                    can use to avoid hardcoding a url that might change later.
-                    Note the %s because we'll need to put the patient's unique
-                    id in there.
-                </p>
-
-                <p>There are two optional flags</p>
 
                 <pre
                     class="chroma"
@@ -106,19 +90,9 @@
                 <p>
                     So you can run it with "go run ." or "go run . -port=8001"
                     or whatever. If you don't specify options they default to
-                    8000 and r4.smarthealthit.org/.
-                </p>
-
-                <p>At the end of main() it runs</p>
-
-                <pre
-                    class="chroma"
-                ><code><span class="line"><span class="cl"><span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:&#34;</span><span class="o">+*</span><span class="nx">port</span><span class="p">,</span> <span class="nx">mux</span><span class="p">)</span></span></span></code></pre>
-
-                <p>
-                    Which waits forever for user requests. When the server gets
-                    a request to a url, it responds with the handler function we
-                    linked to it before.
+                    8000 and r4.smarthealthit.org/. Running the compiled
+                    PotatoEMR.exe is the same except you run ./PotatoEMR.exe
+                    without needing Go installed.
                 </p>
 
                 <p>
