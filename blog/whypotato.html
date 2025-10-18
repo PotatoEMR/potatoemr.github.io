@@ -76,12 +76,13 @@
                     evidence, so claims need to be small enough to prove with
                     code and usage examples. Here's a nice small claim:
                     <em>running</em> PotatoEMR is pretty simple. It's a
-                    <a href="/blog/whygoth">Go</a> server, which you compile and
-                    run with "go run ." to run the entry point func main() in
+                    <a href="/blog/whygoth">Go</a> server, and the entry point
+                    func main() in
                     <a
                         href="https://github.com/PotatoEMR/PotatoEMR/blob/main/main.go"
                         >main.go</a
-                    >. There are two optional flags
+                    >
+                    takes two optional flags
                 </p>
 
                 <pre
@@ -90,11 +91,9 @@
                 </span></span><span class="line"><span class="cl"><span class="nx">fhirServer</span> <span class="o">:=</span> <span class="nx">flag</span><span class="p">.</span><span class="nf">String</span><span class="p">(</span><span class="s">&#34;fhirServer&#34;</span><span class="p">,</span> <span class="s">&#34;r4.smarthealthit.org/&#34;</span><span class="p">,</span> <span class="s">&#34;connect to FHIR server at &lt;fhirServer&gt;&#34;</span><span class="p">)</span></span></span></code></pre>
 
                 <p>
-                    So you can run it with "go run ." or "go run . -port=8001"
-                    or whatever. If you don't specify options they default to
-                    8000 and r4.smarthealthit.org/. Running the compiled
-                    PotatoEMR.exe is the same except you run ./PotatoEMR.exe
-                    without needing Go installed.
+                    So you can run it with "./PotatoEMR.exe" or "./PotatoEMR.exe
+                    -port=8001" or whatever. If you don't specify options they
+                    default to 8000 and r4.smarthealthit.org/.
                 </p>
 
                 <p>
