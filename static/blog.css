@@ -63,7 +63,10 @@ article {
     margin-top: 30px;
 }
 .postimg {
-    height: 10em;
+    max-height: 10em;
+    max-width: 100%;
+    height: auto;
+    width: auto;
     display: block;
 }
 /*
