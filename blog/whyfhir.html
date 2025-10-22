@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Why Potato" />
+        <meta
+            name="keywords"
+            content="PotatoEMR, EMR, Potato, Go, Golang, FHIR, simple, complex, medicine"
+        />
+        <meta property="og:title" content="Why Potato" />
+        <meta
+            property="og:image"
+            content="https://potatoemr.github.io/static/fhirlogo.png"
+        />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='1em' font-size='80'&gt;🥔&lt;/text&gt;&lt;/svg&gt;"
+        />
+        <link rel="stylesheet" href="/static/blog.css" />
+        <title>Why FHIR | PotatoEMR Blog</title>
+    </head>
+    <body>
+        <main>
+            <article>
+                <h1>Why FHIR</h1>
+                <p>
+                    <small
+                        >October 21, 2025 |
+                        <a href="/blog">PotatoEMR Blog</a></small
+                    >
+                </p>
+
+                <img
+                    class="postimg"
+                    src="/static/fhirlogo.png"
+                    alt="HL7 FHIR logo"
+                />
+
+                <h1>Why FHIR</h1>
+
+                <a href="https://hl7.org/fhir/"
+                    >FHIR is a standard for health care data exchange, published
+                    by HL7®."</a
+                >
+
+                <p>
+                    FHIR stands for Fast Healthcare Interoperability Resources.
+                    Here's an example FHIR resource representing a patient's
+                    allergy or intolerance:
+                </p>
+
+                <iframe
+                    src="https://build.fhir.org/allergyintolerance.html#resource"
+                    width="80%"
+                    height="2300px"
+                >
+                </iframe>
+
+                <p>
+                    So much for a simple EMR! Interoperability motivates a lot
+                    of complexity in FHIR resources: nested backbone elements,
+                    custom data types eg codeableconcept, choice properties,
+                    cardinality, references, extensions, and plain old lots of
+                    fields.
+                </p>
+
+                <p>
+                    In addition to defining resource data structure, FHIR
+                    defines
+                    <a href="https://build.fhir.org/http.html"
+                        >CRUD operations</a
+                    >
+                    you can do on resources: Create, Read, Update, Delete, and
+                    some less boring stuff. FHIR resources live on a FHIR
+                    server, and you interact with them through these operations.
+                    For example,
+                    <a
+                        href="https://r4.smarthealthit.org/Patient/2cda5aad-e409-4070-9a15-e1c35c46ed5a"
+                        >https://r4.smarthealthit.org/Patient/2cda5aad-e409-4070-9a15-e1c35c46ed5a</a
+                    >
+                    will read the patient with id
+                    2cda5aad-e409-4070-9a15-e1c35c46ed5a from the public FHIR
+                    server r4.smarthealthit.org.
+                </p>
+
+                <p>
+                    Ostensibly, FHIR standardizes data exchange, not databases.
+                    As long as everyone's data looks the same over the network
+                    it should be ok if Epic and Cerner internally store data
+                    differently.
+                </p>
+
+                <p>
+                    However, especially for a small project like PotatoEMR that
+                    isn't stuck with any particular data requirements, it
+                    simplifies things a lot to say ok, we'll use FHIR to store
+                    data too. This saves the painful step on every exchange of
+                    converting data between an internal format and FHIR. And it
+                    saves us the trouble of deciding if an allergy should have
+                    multiple reaction events and each should have their own last
+                    occurrence time field or there should just be one last
+                    occurrence field for the whole allergy. PotatoEMR doesn't
+                    have exisitng data requirements so we don't want to have to
+                    make these choices. It's nice if new projects can default to
+                    FHIR without any thought or effort.
+                </p>
+
+                <p>
+                    Using a FHIR server to store data is a mixed blessing. The
+                    benefit PotatoEMR can easily plug into existing projects, so
+                    it saves us some effort on the database. Plus we can run and
+                    test against public FHIR servers which is cool. The drawback
+                    is it introduces another
+                    <a href="/blog/boxes">box</a> connected over the network,
+                    making everything more complex and slow.
+                </p>
+
+                <p>
+                    Because FHIR resources and operations are complex, PotatoEMR
+                    abstracts a lot of it away into a
+                    <a href="/bultaoreune">library</a>. The FHIR spec -> Go
+                    types codegen implementation is ugly and painful, but
+                    consuming the library makes FHIR more pleasant through
+                    autocomplete and eliminating a lot of raw strings you don't
+                    want to manually type. Here's getting a patient by id
+                </p>
+
+                <pre
+                    class="chroma"
+                ><code><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+                </span></span><span class="line"><span class="cl">
+                </span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+                </span></span><span class="line"><span class="cl"> <span class="s">&#34;fmt&#34;</span>
+                </span></span><span class="line"><span class="cl">
+                </span></span><span class="line"><span class="cl"> <span class="nx">r4Client</span> <span class="s">&#34;github.com/PotatoEMR/simple-fhir-client/r4Client&#34;</span>
+                </span></span><span class="line"><span class="cl"><span class="p">)</span>
+                </span></span><span class="line"><span class="cl">
+                </span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+                </span></span><span class="line"><span class="cl"> <span class="nx">client</span> <span class="o">:=</span> <span class="nx">r4Client</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;r4.smarthealthit.org/&#34;</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"> <span class="nx">pat</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">ReadPatient</span><span class="p">(</span><span class="s">&#34;2cda5aad-e409-4070-9a15-e1c35c46ed5a&#34;</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"> <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+                </span></span><span class="line"><span class="cl"> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;this worked as of 10/21/2025...maybe server down or patient gone?&#34;</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                </span></span><span class="line"><span class="cl"> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;found patient:&#34;</span><span class="p">,</span> <span class="o">*</span><span class="nx">pat</span><span class="p">)</span>
+                </span></span><span class="line"><span class="cl"> <span class="p">}</span>
+                </span></span><span class="line"><span class="cl"><span class="p">}</span>
+                </span></span></code></pre>
+
+                <p>
+                    Structuring medical data is the hard part, which FHIR takes
+                    care of. FHIR is pretty complicated but hopefully worth it
+                    for data everyone will be able to use later.
+                </p>
+
+                <footer class="license">
+                    Go gopher by
+                    <a href="https://en.wikipedia.org/wiki/Ren%C3%A9e_French"
+                        >Renée French</a
+                    >
+                    under
+                    <a
+                        href="https://creativecommons.org/licenses/by/4.0/deed.en"
+                        >CC4</a
+                    >. FHIR<sup>&reg;</sup> is a trademark of
+                    <a href="https://hl7.org/fhir/">HL7</a><sup>&reg;</sup>.
+                    Potato domesticated by
+                    <a
+                        href="https://www.smithsonianmag.com/history/how-the-potato-changed-the-world-108470605/"
+                        >Andeans</a
+                    >
+                    many years
+                    <a
+                        href="https://en.wikipedia.org/wiki/History_of_the_potato"
+                        >ago</a
+                    >.
+                </footer>
+            </article>
+        </main>
+    </body>
+</html>
