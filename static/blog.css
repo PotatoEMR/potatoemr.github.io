@@ -48,7 +48,7 @@ article {
 }
 @media (prefers-color-scheme: dark) {
     a {
-        color: lightskyblue;
+        color: #00FFFF;
     }
     a:visited {
         color: #ff88ff;
