@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Why Go + templ + HTMX" />
+        <meta
+            name="keywords"
+            content="PotatoEMR, EMR, Potato, Go, Golang, FHIR, simple, complex, medicine"
+        />
+        <meta property="og:title" content="Why Go + templ + HTMX" />
+        <meta
+            property="og:image"
+            content="https://potatoemr.github.io/static/goth.jpg"
+        />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='1em' font-size='80'&gt;🥔&lt;/text&gt;&lt;/svg&gt;"
+        />
+        <link rel="stylesheet" href="/static/blog.css" />
+        <title>Why Go + templ + HTMX | PotatoEMR Blog</title>
+    </head>
+    <body>
+        <main>
+            <article>
+                <h1>Why Go + templ + HTMX</h1>
+                <p>
+                <small>October 24, 2025 |
+                <a href="/blog">PotatoEMR Blog</a></small>
+                </p>
+
+                <img class="postimg" src="/static/goth.jpg" alt="Goth Go Gopherize.me Gopher">
+
+
+                <p>PotatoEMR sits between a FHIR server and the user's browser. Most of the work it does is rendering fairly complex <a href="/blog/whyfhir">FHIR</a> resources to HTML pages. It serves pages on a standard http server, using data from a FHIR JSON CRUD API. Go + templ + HTMX ("goth") reflects where PotatoEMR <a href="https://htmx.org/essays/complexity-budget/">does and does not do interesting work.</a></p>
+
+                <p><b>HTMX:</b> PotatoEMR pages are patient documents with basic links and forms, but no crazy interactive features. HTMX stays with the grain of sending HTML to the user, and makes it a bit nicer. For instance when the user types in a patient search input, instead of replacing the whole page we replace only the results element, and show loading spinner while request in flight.</p>
+
+<div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">form</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;search-patient-form&quot;</span>
+    <span class="na">hx-post</span><span class="o">=</span><span class="s">&quot;/searchpatient&quot;</span>
+    <span class="na">hx-target</span><span class="o">=</span><span class="s">&quot;#search-results&quot;</span>
+    <span class="na">hx-indicator</span><span class="o">=</span><span class="s">&quot;#search-patient-container&quot;</span>
+    <span class="na">hx-sync</span><span class="o">=</span><span class="s">&quot;this:replace&quot;</span>
+    <span class="na">hx-trigger</span><span class="o">=</span><span class="s">&quot;input delay:300ms, input from:#search-birthdate&quot;</span>
+<span class="p">&gt;</span>
+</pre></div>
+
+                <p><b>Go:</b> Go feels easy to start, and is good enough for data from a JSON API and an http server, which is all PotatoEMR needs. With static types but no super expressive type system, Go helps use FHIR resource structs without learning too much. Here we take patient lookup params and get either a list of patients or an error from the FHIR server.</p>
+
+<div class="highlight"><pre><span></span>templ T_SearchPatientResults(resultPatientList []*r4.Patient) {
+if len(resultPatientList) == 0 {
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>No patients found<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+} else {
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; flex-direction: column; gap: 4px;&quot;</span><span class="p">&gt;</span>
+for _, pat := range resultPatientList {
+<span class="p">&lt;</span><span class="nt">a</span>
+	<span class="na">hx-indicator</span><span class="o">=</span><span class="s">&quot;#main-content&quot;</span>
+	<span class="na">onclick</span><span class="o">=</span><span class="s">&quot;this.closest(&#39;dialog&#39;).close()&quot;</span>
+	<span class="na">href</span><span class="o">=</span><span class="s">{</span> <span class="na">fmt</span><span class="err">.</span><span class="na">Sprintf</span><span class="err">(</span><span class="na">get_patient_overview</span><span class="err">,</span> <span class="err">*</span><span class="na">pat</span><span class="err">.</span><span class="na">Id</span><span class="err">)</span> <span class="err">}</span>
+<span class="p">&gt;</span>
+	<span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: flex; gap: 4px;&quot;</span><span class="p">&gt;</span>
+		{{ photoSrc := utils.GetPatientPhotoSrc(pat) }}
+		if photoSrc == nil {
+			<span class="p">&lt;</span><span class="nt">svg</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;50px&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;50px&quot;</span> <span class="na">viewBox</span><span class="o">=</span><span class="s">&quot;0 0 150 150&quot;</span><span class="p">&gt;</span>
+				<span class="p">&lt;</span><span class="nt">path</span> <span class="na">fill</span><span class="o">=</span><span class="s">&quot;#ccc&quot;</span> <span class="na">d</span><span class="o">=</span><span class="s">&quot;M 104.68731,56.689353 C 102.19435,80.640493 93.104981,97.26875 74.372196,97.26875 55.639402,97.26875 46.988823,82.308034 44.057005,57.289941 41.623314,34.938838 55.639402,15.800152 74.372196,15.800152 c 18.732785,0 32.451944,18.493971 30.315114,40.889201 z&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">path</span><span class="p">&gt;</span>
+				<span class="p">&lt;</span><span class="nt">path</span> <span class="na">fill</span><span class="o">=</span><span class="s">&quot;#ccc&quot;</span> <span class="na">d</span><span class="o">=</span><span class="s">&quot;M 92.5675 89.6048 C 90.79484 93.47893 89.39893 102.4504 94.86478 106.9039 C 103.9375 114.2963 106.7064 116.4723 118.3117 118.9462 C 144.0432 124.4314 141.6492 138.1543 146.5244 149.2206 L 4.268444 149.1023 C 8.472223 138.6518 6.505799 124.7812 32.40051 118.387 C 41.80992 116.0635 45.66513 113.8823 53.58659 107.0158 C 58.52744 102.7329 57.52583 93.99267 56.43084 89.26926 C 52.49275 88.83011 94.1739 88.14054 92.5675 89.6048 z&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">path</span><span class="p">&gt;</span>
+			<span class="p">&lt;/</span><span class="nt">svg</span><span class="p">&gt;</span>
+		} else {
+			<span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">{</span> <span class="err">*</span><span class="na">photoSrc</span> <span class="err">}</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;width: 50px; height: 50px;&quot;</span><span class="p">/&gt;</span>
+		}
+		<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+			<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>{ pat.String() }<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+		<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+	<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+}
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+}
+}
+</pre></div>
+
+
+                <p><b>templ:</b> Go has html/template in the standard library, and templ is more complicated, but worth it because rendering complicated FHIR structs as HTML pages is what PotatoEMR is for. templ requires its own installation, and instead of .go files you edit .templ, then run templ generate. Following a compiler error can take you to the generated .go gibberish instead of the .templ that creates it. templ uses its own IDE extensions which (today) feel jankier than plain Go. The challenges templ adds are surmountable but annoying. The benefit of templ is <a href="https://old.reddit.com/r/golang/comments/1hwlxeq/faq_whats_the_best_way_to_do_html_templating/m6ds18h/">HTML in Go code, like JSX or Razor Pages</a> but in Go. This gets you checks of if it's myallergy.lastOccurrence or myallergy.lastReactionOccurrence at compile time rather than runtime. With these checks and autocomplete, writing templ templates from complicated FHIR structs is faster and less error prone than string templates. One nice middle ground with components in Go but no build step is <a href="https://www.gomponents.com/">gomponents</a>. The advantage of templ is it's declarative in that writing &ltp&gthello&ltp&gt outputs &ltp&gthello&ltp&gt, ie the starting/closing tags look the exact same as output HTML. templ feels good for pages with a lot of fields from a FHIR resources. This example shows search results for a patient lookup. Currently you can see the patient image/placeholder svg right here, but if later we want the same patient picture component in many places, we could pull it out into its own templ component.</p>
+
+
+                <p>Big downside to templating on the server: since we already have a JSON API from the FHIR server, we could maybe get away with only thick client (lots of js or wasm) + FHIR server, but instead we add a 3rd <a href="/blog/boxes">box</a> on the system diagram. With it comes latency and more places for things to mess up when converting and sending. One upside of running on a server is we can put the FHIR server on the same server as PotatoEMR, so if in the end we have to deploy both, server side rendering doesn't add a new network. But at the end of the day it is 3 boxes for what could be just 2.</p>
+
+                <p>These choices aren't justified by any formula or proof; I very subjectively looked at and tried various options and ended up here. Others might even be better in some ways, but here's my post hoc rationalization for these: <a href="https://htmx.org/essays/">Much more</a> has been written about server side rendering, hypermedia, REST, etc., but mostly HTMX felt natural. Similarly Go felt really natural for getting a FHIR resource or OperationOutcome error. templ, by contrast, feels painful but tolerable because HTML in Go looks good and is the exciting part of PotatoEMR. Hopefully Go + templ + HTMX expedites writing fun (stupid, even) pages like upvotes on notes.</p>
+
+                <footer class="license">
+                    Go gopher by
+                    <a href="https://en.wikipedia.org/wiki/Ren%C3%A9e_French"
+                        >Renée French</a
+                    >
+                    under
+                    <a
+                        href="https://creativecommons.org/licenses/by/4.0/deed.en"
+                        >CC4</a
+                    >. FHIR<sup>&reg;</sup> is a trademark of
+                    <a href="https://hl7.org/fhir/">HL7</a><sup>&reg;</sup>.
+                    Potato domesticated by
+                    <a
+                        href="https://www.smithsonianmag.com/history/how-the-potato-changed-the-world-108470605/"
+                        >Andeans</a
+                    >
+                    many years
+                    <a
+                        href="https://en.wikipedia.org/wiki/History_of_the_potato"
+                        >ago</a
+                    >.
+                </footer>
+            </article>
+        </main>
+    </body>
+</html>
